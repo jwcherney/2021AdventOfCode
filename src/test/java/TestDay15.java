@@ -6,12 +6,24 @@ public class TestDay15 {
     @Test
     void testPart1() {
         Day15 day15 = new Day15(testInput);
-        assertEquals(40, day15.getPart1());
+        assertEquals(40, day15.calculateMinimumTotalRisk());
     }
     @Test
-    void testPart2() {
+    void testPart2_LargeMap() {
         Day15 day15 = new Day15(testInput2);
-        assertEquals(315, day15.getPart1());
+        assertEquals(315, day15.calculateMinimumTotalRisk());
+    }
+    @Test
+    void testPart2_SmallMap() {
+        Day15 day15 = new Day15(testInput, false);
+        assertEquals(315, day15.calculateMinimumTotalRisk());
+    }
+    @Test
+    void testDataOutput() {
+        Day15 fullMap = new Day15(testInput);
+        assertEquals(testInput, fullMap.riskDataToString());
+        Day15 smallMap = new Day15(testInput, false);
+        assertEquals(testInput2, smallMap.riskDataToString());
     }
 
     String testInput =
