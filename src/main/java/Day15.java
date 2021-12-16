@@ -31,10 +31,10 @@ public class Day15 {
             }
         }
         riskTotals = new int[rows][cols];
-        populateRiskArray();
+        populateRiskTotals();
     }
 
-    void populateRiskArray() {
+    void populateRiskTotals() {
         int diagonalCount = 2*rows - 1;
         for(int i = 0; i < diagonalCount; i++) {
             int elementCount = i+1;
@@ -48,12 +48,12 @@ public class Day15 {
                     row=i-rows+1+j;
                     col=rows-1-j;
                 }
-                calculateRisk(row, col);
+                calculateRiskTotals(row, col);
             }
         }
     }
 
-    void calculateRisk(int row, int col) {
+    void calculateRiskTotals(int row, int col) {
         if(row==0 && col==0) {
             riskTotals[row][col] = riskData[row][col];
         } else {
