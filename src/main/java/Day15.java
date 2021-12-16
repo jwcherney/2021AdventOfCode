@@ -75,7 +75,7 @@ public class Day15 {
             for (int j = 0; j < elementCount; j++) {
                 int col = first_col - j;
                 int row = first_row + j;
-                System.out.println(row + ", " + col + ", " + elementCount);
+//                System.out.println(row + ", " + col + ", " + elementCount);
                 calculateRiskTotals(row, col);
             }
         }
