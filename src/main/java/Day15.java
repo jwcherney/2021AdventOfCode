@@ -7,14 +7,14 @@ public class Day15 {
          */
     }
 
-    int[][] data;
-    int[][] riskArray;
+    int[][] riskData;
+    int[][] riskTotals;
     int rows, cols;
     public Day15(String input) {
         String[] lines = input.split("\n");
         rows = lines.length;
         cols = 0;
-        data = new int[rows][];
+        riskData = new int[rows][];
         for(int i = 0; i < rows; i++) {
             String[] values = lines[i].split("");
             if(cols == 0) {
@@ -25,12 +25,12 @@ public class Day15 {
             if(rows != cols) {
                 throw new IllegalStateException("Invalid: not a square map: " + rows + "x" + cols);
             }
-            data[i] = new int[cols];
+            riskData[i] = new int[cols];
             for(int j = 0; j < cols; j++) {
-                data[i][j] = Integer.parseInt(values[j]);
+                riskData[i][j] = Integer.parseInt(values[j]);
             }
         }
-        riskArray = new int[rows][cols];
+        riskTotals = new int[rows][cols];
         populateRiskArray();
     }
 
@@ -55,22 +55,22 @@ public class Day15 {
 
     void calculateRisk(int row, int col) {
         if(row==0 && col==0) {
-            riskArray[row][col] = data[row][col];
+            riskTotals[row][col] = riskData[row][col];
         } else {
             int above = Integer.MAX_VALUE;
             if(row-1 >= 0) {
-                above = riskArray[row-1][col];
+                above = riskTotals[row-1][col];
             }
             int left = Integer.MAX_VALUE;
             if(col-1 >= 0) {
-                left = riskArray[row][col-1];
+                left = riskTotals[row][col-1];
             }
-            riskArray[row][col] = data[row][col] + Math.min(above, left);
+            riskTotals[row][col] = riskData[row][col] + Math.min(above, left);
         }
     }
 
     public int getPart1() {
-        return riskArray[rows-1][cols-1] - data[0][0];
+        return riskTotals[rows-1][cols-1] - riskData[0][0];
     }
 
     static String input =
