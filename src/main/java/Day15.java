@@ -37,17 +37,16 @@ public class Day15 {
     void populateRiskTotals() {
         int diagonalCount = 2*rows - 1;
         for(int i = 0; i < diagonalCount; i++) {
-            int elementCount = i+1;
-            if(i >= rows) {
-                elementCount = diagonalCount-i;
+            int elementCount = i + 1;
+            if(elementCount > rows) {
+                elementCount = diagonalCount - elementCount + 1;
             }
+            int first_col = Math.min(i, cols-1);
+            int first_row = i - first_col;
             for(int j = 0; j < elementCount; j++) {
-                int row=j;
-                int col=i-j;
-                if(i >= rows) {
-                    row=i-rows+1+j;
-                    col=rows-1-j;
-                }
+                int col = first_col - j;
+                int row = first_row + j;
+//                System.out.println(row + ", " + col + ", " + elementCount);
                 calculateRiskTotals(row, col);
             }
         }
