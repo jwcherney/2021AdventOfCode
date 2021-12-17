@@ -21,9 +21,18 @@ public class TestDay15 {
     @Test
     void testDataOutput() {
         Day15 fullMap = new Day15(testInput);
-        assertEquals(testInput, fullMap.riskDataToString());
+        assertEquals(testInput, fullMap.arrayToString(fullMap.riskData, true));
         Day15 smallMap = new Day15(testInput, false);
-        assertEquals(testInput2, smallMap.riskDataToString());
+        assertEquals(testInput2, smallMap.arrayToString(smallMap.riskData, true));
+    }
+    @Test
+    void testOddInput() {
+        Day15 odd1 = new Day15(oddInput1);
+        assertEquals(10, odd1.calculateMinimumTotalRisk());
+        Day15 odd2 = new Day15(oddInput2);
+        assertEquals(11, odd2.calculateMinimumTotalRisk());
+        Day15 odd3 = new Day15(oddInput3);
+        assertEquals(12, odd3.calculateMinimumTotalRisk());
     }
 
     String testInput =
@@ -89,4 +98,23 @@ public class TestDay15 {
             "75698651748671976285978218739618932984172914319528\n" +
             "56475739656758684176786979528789718163989182927419\n" +
             "67554889357866599146897761125791887223681299833479";
+
+    String oddInput1 =
+            "19111\n" +
+            "11191\n" +
+            "99991\n" +
+            "99991\n" +
+            "99991\n";
+    String oddInput2 =
+            "19111\n" +
+            "11291\n" +
+            "99191\n" +
+            "99991\n" +
+            "99991\n";
+    String oddInput3 =
+            "11199\n" +
+            "99199\n" +
+            "11199\n" +
+            "19991\n" +
+            "11111\n";
 }

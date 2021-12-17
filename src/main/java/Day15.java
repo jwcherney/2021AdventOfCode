@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
 public class Day15 {
     public static void main(String[] args) {
         Day15 fullMap = new Day15(input);
@@ -6,7 +10,7 @@ public class Day15 {
         System.out.println("Part 2 output: " + smallMap.calculateMinimumTotalRisk());
         /*
         Part 1 output: 707
-        Part 2 output: 2948 (INCORRECT TOO HIGH)
+        Part 2 output: 2942
          */
     }
 
@@ -38,7 +42,6 @@ public class Day15 {
                 riskData[i][j] = Integer.parseInt(values[j]);
             }
         }
-        riskTotals = new int[rows][cols];
         if (!isFullMap) {
             int newRows = rows * 5;
             int newCols = cols * 5;
@@ -58,42 +61,48 @@ public class Day15 {
             rows = newRows;
             cols = newCols;
             riskData = newRiskData;
-            riskTotals = new int[rows][cols];
         }
+        riskTotals = new int[rows][cols];
         populateRiskTotals();
     }
 
-    void populateRiskTotals() {
-        int diagonalCount = 2 * rows - 1;
-        for (int i = 0; i < diagonalCount; i++) {
-            int elementCount = i + 1;
-            if (elementCount > rows) {
-                elementCount = diagonalCount - elementCount + 1;
-            }
-            int first_col = Math.min(i, cols - 1);
-            int first_row = i - first_col;
-            for (int j = 0; j < elementCount; j++) {
-                int col = first_col - j;
-                int row = first_row + j;
-//                System.out.println(row + ", " + col + ", " + elementCount);
-                calculateRiskTotals(row, col);
-            }
-        }
+    static public class Cell {
+        int x, y, d;
+        public Cell(int x, int y, int d) { this.x = x; this.y = y; this.d = d; }
     }
-
-    void calculateRiskTotals(int row, int col) {
-        if (row == 0 && col == 0) {
-            riskTotals[row][col] = riskData[row][col];
-        } else {
-            int above = Integer.MAX_VALUE;
-            if (row - 1 >= 0) {
-                above = riskTotals[row - 1][col];
+    static public class CellComparator implements Comparator<Cell> {
+        public int compare(Cell a, Cell b) { return a.d - b.d; }
+    }
+    boolean isInMap(int x, int y) {
+        return ((x >= 0) && (y >= 0) && (x < rows) && (y < cols));
+    }
+    void populateRiskTotals() {
+        for(int[] row : riskTotals) { Arrays.fill(row, Integer.MAX_VALUE); }
+        riskTotals[0][0] = riskData[0][0];
+        int[] dx = new int[] {1, 0, -1, 0};
+        int[] dy = new int[] {0, 1, 0, -1};
+        PriorityQueue<Cell> pq = new PriorityQueue<>(rows*cols, new CellComparator());
+        pq.add(new Cell(0, 0, riskData[0][0]));
+        while(!pq.isEmpty()) {
+            Cell curr = pq.poll();
+            for(int i = 0; i < dx.length; i++) {
+                int adjX = curr.x + dx[i];
+                int adjY = curr.y + dy[i];
+                if(isInMap(adjX, adjY)) {
+                    int risk = riskData[adjX][adjY];
+                    if(riskTotals[adjX][adjY] > riskTotals[curr.x][curr.y] + risk) {
+                        if(riskTotals[adjX][adjY] != Integer.MAX_VALUE) {
+                            pq.remove(new Cell(adjX, adjY, riskTotals[adjX][adjY]));
+//                            System.out.println("Removed (" + adjX + ", " + adjY + ", " + riskTotals[adjX][adjY] + ")");
+                        }
+                        riskTotals[adjX][adjY] = riskTotals[curr.x][curr.y] + risk;
+                        pq.add(new Cell(adjX, adjY, riskTotals[adjX][adjY]));
+//                        System.out.println("Added   (" + adjX + ", " + adjY + ", " + riskTotals[adjX][adjY] + ")");
+                    }
+                }
             }
-            int left = Integer.MAX_VALUE;
-            if (col - 1 >= 0) {
-                left = riskTotals[row][col - 1];
-            }
-            riskTotals[row][col] = riskData[row][col] + Math.min(above, left);
+//            System.out.println(arrayToString(riskTotals, false));
+//            System.out.println();
         }
     }
 
@@ -101,11 +110,16 @@ public class Day15 {
         return riskTotals[rows - 1][cols - 1] - riskData[0][0];
     }
 
-    public String riskDataToString() {
+    public String arrayToString(int[][] arr, boolean raw) {
         StringBuilder output = new StringBuilder();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                output.append(riskData[i][j]);
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[i].length; j++) {
+                int value = arr[i][j];
+                if(raw) { output.append(value); }
+                else {
+                    if(value == Integer.MAX_VALUE) { output.append(" . "); }
+                    else { output.append(String.format("%02d ", arr[i][j])); }
+                }
             }
             output.append("\n");
         }
