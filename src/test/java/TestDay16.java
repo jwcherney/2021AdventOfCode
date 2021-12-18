@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDay16 {
     @Test
@@ -13,7 +13,7 @@ public class TestDay16 {
         Day16.Packet packet = packets.get(0);
         assertEquals(6, packet.version);
         assertEquals(4, packet.type);
-        assertEquals(false, packet.isOperator());
+        assertFalse(packet.isOperator());
         assertEquals(2021, ((Day16.LiteralPacket)packet).literal);
         assertEquals(6, day16.getVersionSum());
         assertEquals(2021, day16.getValue());
@@ -27,14 +27,14 @@ public class TestDay16 {
         Day16.Packet packet = packets.get(0);
         assertEquals(1, packet.version);
         assertEquals(6, packet.type);
-        assertEquals(true, packet.isOperator());
+        assertTrue(packet.isOperator());
         assertEquals(2, ((Day16.OperatorPacket)packet).packets.size());
         Day16.Packet subPacket = ((Day16.OperatorPacket) packet).packets.get(0);
-        assertEquals(false, subPacket.isOperator());
+        assertFalse(subPacket.isOperator());
         assertEquals(6, subPacket.version);
         assertEquals(10, ((Day16.LiteralPacket)subPacket).literal);
         subPacket = ((Day16.OperatorPacket) packet).packets.get(1);
-        assertEquals(false, subPacket.isOperator());
+        assertFalse(subPacket.isOperator());
         assertEquals(20, ((Day16.LiteralPacket)subPacket).literal);
         assertEquals(2, subPacket.version);
         assertEquals(9, day16.getVersionSum());
@@ -49,18 +49,18 @@ public class TestDay16 {
         Day16.Packet packet = packets.get(0);
         assertEquals(7, packet.version);
         assertEquals(3, packet.type);
-        assertEquals(true, packet.isOperator());
+        assertTrue(packet.isOperator());
         assertEquals(3, ((Day16.OperatorPacket)packet).packets.size());
         Day16.Packet subPacket = ((Day16.OperatorPacket)packet).packets.get(0);
-        assertEquals(false, subPacket.isOperator());
+        assertFalse(subPacket.isOperator());
         assertEquals(1, ((Day16.LiteralPacket)subPacket).literal);
         assertEquals(2, subPacket.version);
         subPacket = ((Day16.OperatorPacket)packet).packets.get(1);
-        assertEquals(false, subPacket.isOperator());
+        assertFalse(subPacket.isOperator());
         assertEquals(2, ((Day16.LiteralPacket)subPacket).literal);
         assertEquals(4, subPacket.version);
         subPacket = ((Day16.OperatorPacket)packet).packets.get(2);
-        assertEquals(false, subPacket.isOperator());
+        assertFalse(subPacket.isOperator());
         assertEquals(3, ((Day16.LiteralPacket)subPacket).literal);
         assertEquals(1, subPacket.version);
         assertEquals(14, day16.getVersionSum());
