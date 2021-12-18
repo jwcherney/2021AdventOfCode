@@ -5,8 +5,10 @@ public class Day16 {
     public static void main(String[] args) {
         Day16 day16 = new Day16(day16Input);
         System.out.println("Part 1 output: Sum of all versions: " + day16.getVersionSum());
+        System.out.println("Part 2 output: Value of all packets: " + day16.getValue());
         /*
         Part 1 output: Sum of all versions: 852
+        Part 2 output: Value of all packets: 19348959966392
          */
     }
 
@@ -28,11 +30,15 @@ public class Day16 {
         int returnValue = 0;
         for(Packet packet : packets) {
             returnValue += packet.version;
-            if(!packet.isLiteral()) {
+            if(packet.isOperator()) {
                 returnValue += getVersionSum(((OperatorPacket)packet).packets);
             }
         }
         return returnValue;
+    }
+    public long getValue() {
+        if(packets.size() > 1) { throw new RuntimeException("More than one top level packet?!?!"); }
+        return packets.get(0).getValue();
     }
     void generatePackets() {
         while(!bitStream.isEmpty()) {
@@ -48,9 +54,8 @@ public class Day16 {
         int type = bitStream.getBits(3);
         bitCount += 6;
         if(type == Packet.TYPE_LITERAL) {
-            LiteralPacket packet = new LiteralPacket();
+            LiteralPacket packet = (LiteralPacket)(Packet.getPacket(type));
             packet.version = version;
-            packet.type = type;
             while(bitStream.getBits(1) == Packet.LITERAL_CHECK_CONTINUE) {
                 packet.literal = (packet.literal << 4) + bitStream.getBits(4);
                 bitCount += 5;
@@ -59,9 +64,8 @@ public class Day16 {
             bitCount += 5;
             packetList.add(packet);
         } else {
-            OperatorPacket packet = new OperatorPacket();
+            OperatorPacket packet = (OperatorPacket) Packet.getPacket(type);
             packet.version = version;
-            packet.type = type;
             packet.lengthType = bitStream.getBits(1);
             bitCount += 1;
             if(packet.lengthType == 0) {
@@ -85,26 +89,92 @@ public class Day16 {
         return bitCount;
     }
 
-    public static class Packet {
+    abstract public static class Packet {
         int version, type;
         public Packet() {}
-        public boolean isLiteral() { return type == TYPE_LITERAL; }
+        public boolean isOperator() { return type != TYPE_LITERAL; }
+        abstract public long getValue();
+        static final int TYPE_SUM = 0;
+        static final int TYPE_PRODUCT = 1;
+        static final int TYPE_MIN = 2;
+        static final int TYPE_MAX = 3;
         static final int TYPE_LITERAL = 4;
+        static final int TYPE_GT = 5;
+        static final int TYPE_LT = 6;
+        static final int TYPE_EQ = 7;
         static final int LITERAL_CHECK_CONTINUE = 1;
+        static Packet getPacket(int type) {
+            switch(type) {
+                case TYPE_SUM: return new SumOperatorPacket();
+                case TYPE_PRODUCT: return new ProductOperatorPacket();
+                case TYPE_MIN: return new MinOperatorPacket();
+                case TYPE_MAX: return new MaxOperatorPacket();
+                case TYPE_LITERAL: return new LiteralPacket();
+                case TYPE_GT: return new GTOperatorPacket();
+                case TYPE_LT: return new LTOperatorPacket();
+                case TYPE_EQ: return new EQOperatorPacket();
+                default: throw new IllegalStateException("Unknown Packet Type: " + type);
+            }
+        }
     }
     public static class LiteralPacket extends Packet {
-        int literal;
-        public LiteralPacket() { super(); }
+        long literal;
+        public LiteralPacket() { super(); type = TYPE_LITERAL; }
+        public long getValue() { return literal; }
     }
-    public static class OperatorPacket extends Packet {
+    abstract public static class OperatorPacket extends Packet {
         int lengthType;
         List<Packet> packets;
         public OperatorPacket() { super(); packets = new ArrayList<>(); }
     }
+    public static class SumOperatorPacket extends OperatorPacket {
+        public SumOperatorPacket() { super(); type = TYPE_SUM; }
+        public long getValue() {
+            long returnValue = 0;
+            for(Packet p : packets) { returnValue += p.getValue(); }
+            return returnValue;
+        }
+    }
+    public static class ProductOperatorPacket extends OperatorPacket {
+        public ProductOperatorPacket() { super(); type = TYPE_PRODUCT; }
+        public long getValue() {
+            long returnValue = 1;
+            for(Packet p : packets) { returnValue *= p.getValue(); }
+            return returnValue;
+        }
+    }
+    public static class MinOperatorPacket extends OperatorPacket {
+        public MinOperatorPacket() { super(); type = TYPE_MIN; }
+        public long getValue() {
+            long returnValue = Integer.MAX_VALUE;
+            for(Packet p : packets) { returnValue = Math.min(returnValue, p.getValue()); }
+            return returnValue;
+        }
+    }
+    public static class MaxOperatorPacket extends OperatorPacket {
+        public MaxOperatorPacket() { super(); type = TYPE_MAX; }
+        public long getValue() {
+            long returnValue = Long.MIN_VALUE;
+            for(Packet p : packets) { returnValue = Math.max(returnValue, p.getValue()); }
+            return returnValue;
+        }
+    }
+    public static class GTOperatorPacket extends OperatorPacket {
+        public GTOperatorPacket() { super(); type = TYPE_GT; }
+        public long getValue() { return (packets.get(0).getValue() > packets.get(1).getValue()) ? 1 : 0; }
+    }
+    public static class LTOperatorPacket extends OperatorPacket {
+        public LTOperatorPacket() { super(); type = TYPE_LT; }
+        public long getValue() { return (packets.get(0).getValue() < packets.get(1).getValue()) ? 1 : 0; }
+    }
+    public static class EQOperatorPacket extends OperatorPacket {
+        public EQOperatorPacket() { super(); type = TYPE_EQ; }
+        public long getValue() { return (packets.get(0).getValue() == packets.get(1).getValue()) ? 1 : 0; }
+    }
 
     public static class BitStream {
         String[] nibbles;
-        int nibble = 0;
+        byte nibble = 0;
         int nibbleOffset = -1;
         int bitOffset = 0;
         int[] MASK_OFFSET = new int[] { 8, 4, 2, 1 };
@@ -125,7 +195,7 @@ public class Day16 {
             }
             return returnValue;
         }
-        void nextNibble() { nibbleOffset++; if(!isEmpty()) {nibble = Integer.parseInt(nibbles[nibbleOffset], 16); } }
+        void nextNibble() { nibbleOffset++; if(!isEmpty()) {nibble = Byte.parseByte(nibbles[nibbleOffset], 16); } }
         int bitsRemaining() { return 4*(nibbles.length - nibbleOffset) - bitOffset; }
         boolean isEmpty() {
             return (nibbleOffset >= nibbles.length);
