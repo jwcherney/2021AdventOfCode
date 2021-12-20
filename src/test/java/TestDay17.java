@@ -47,4 +47,10 @@ public class TestDay17 {
         assertEquals(20, day17.getStep());
         assertEquals(new Day17.Point(21,-10), day17.getPoint());
     }
+
+    @Test
+    void testFindMaxY() {
+        assertEquals(45, Day17.findMaxY(testInput));
+        assertEquals(new Day17.Point(7, 9), Day17.maxYDay17.getStartingPoint());
+    }
 }
