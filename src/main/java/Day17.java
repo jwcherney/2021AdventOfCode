@@ -1,37 +1,49 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Day17 {
     public static void main(String[] args) {
-        System.out.println("Part 1: MaxY = " + Day17.findMaxY(day17Input, 1, 4));
-        System.out.println("  Starting Point: " + Day17.maxYDay17.getStartingPoint());
-        System.out.println("    Ending Point: " + Day17.maxYDay17.getPoint());
+        System.out.println("Part 1 and 2: MaxY = " + Day17.sweepFindMaxY(day17Input));
+        System.out.println("  Starting Point: " + Day17.maxYPoint);
+        System.out.println("      Total Hits: " + Day17.getHitCount());
         /*
-        Part 1: MaxY = 7750
-          Starting Point: (18, 124)
-            Ending Point: (171, -125)
-        Brute force:
-        Part 1: MaxY = 7750
+        Part 1 and 2: MaxY = 7750
           Starting Point: (17, 124)
-            Ending Point: (153, -125)
+              Total Hits: 4120
          */
-//        Day17 bruteForce = null;
-//        for(int x = 1; x < 100; x++) {
-//            for(int y = 1; y < 200; y++) {
-//                Day17 d = new Day17(day17Input);
-//                if(d.fire(17, y)) {
-//                    if(bruteForce == null || d.getMaxY() > bruteForce.getMaxY()) {
-//                        bruteForce = d;
-//                    }
-//                }
-//            }
-//        }
-//        System.out.println("Brute force:");
-//        System.out.println("Part 1: MaxY = " + bruteForce.getMaxY());
-//        System.out.println("  Starting Point: " + bruteForce.getStartingPoint());
-//        System.out.println("    Ending Point: " + bruteForce.getPoint());
     }
-    public static Day17 maxYDay17;
+
+    static Point maxYPoint = null;
+    static int maxMaxY = 0;
+    static HashSet<Point> hitSet = new HashSet<>();
+    public static final String day17Input = "target area: x=138..184, y=-125..-71";
+
+    public static void resetStatic() {
+        maxYPoint = null;
+        maxMaxY = 0;
+        hitSet = new HashSet<>();
+    }
+    public static int getHitCount() {
+        return hitSet.size();
+    }
+
+    public static int sweepFindMaxY(String input) {
+        resetStatic();
+        Day17 runner = new Day17(input);
+        int xOmega = runner.targetXMax;
+        int yOmega = runner.targetYMin;
+        for(int i = 1; i <= xOmega; i++) {
+           for(int j = yOmega; j <= Math.abs(yOmega); j++) {
+               runner.fire(i, j);
+           }
+           System.out.print(".");
+           if(i%20==0) { System.out.println(); }
+        }
+        System.out.println();
+        return maxMaxY;
+    }
+
     public static int findMaxY(String input) {
         return findMaxY(input, 1, 1);
     }
@@ -53,7 +65,7 @@ public class Day17 {
         if(day17.isBeyond()) { return -1; }
         maxYs.add(day17);
         maxY = day17.getMaxY();
-        System.out.println("Added first hit: " + day17.getStartingPoint() + " maxY: " + maxY);
+//        System.out.println("Added first hit: " + day17.getStartingPoint() + " maxY: " + maxY);
         boolean maxUpdated = true;
         while(maxUpdated) {
             maxUpdated = false;
@@ -76,16 +88,16 @@ public class Day17 {
                     boolean isHit = adjacent.fire(p);
                     if(isHit && adjacent.getMaxY() >= maxY) {
                         newMaxYs.add(adjacent);
-                        System.out.println("Added adjacent: " + adjacent.getStartingPoint() + " maxY: " + adjacent.getMaxY());
+//                        System.out.println("Added adjacent: " + adjacent.getStartingPoint() + " maxY: " + adjacent.getMaxY());
                     }
                 }
             }
             for(Day17 d : newMaxYs) {
                 newMaxY = Integer.max(newMaxY, d.getMaxY());
             }
-            System.out.println("newMaxY: " + newMaxY);
+//            System.out.println("newMaxY: " + newMaxY);
             if(newMaxY > maxY) {
-                System.out.println("Found new maxY: " + newMaxY);
+//                System.out.println("Found new maxY: " + newMaxY);
                 maxUpdated = true;
                 for(Day17 d : newMaxYs.toArray(new Day17[0])) {
                     if(d.getMaxY() != newMaxY) {
@@ -94,19 +106,17 @@ public class Day17 {
                 }
                 maxYs = newMaxYs;
                 maxY = newMaxY;
-                maxYDay17 = newMaxYs.get(0);
             }
         }
-        System.out.println("to here max = " + maxY);
         return maxY;
     }
-    public static final String day17Input = "target area: x=138..184, y=-125..-71";
 
     int targetXMin, targetXMax, targetYMin, targetYMax;
-    int x0, y0;
+    int dx, dy;
     int maxY;
     boolean isBeyond;
     ArrayList<Point> points;
+
     public Day17(String input) {
         String[] words = input.split(" ");
         String[] temp = words[2].split("[.=,]");
@@ -120,19 +130,17 @@ public class Day17 {
         return fire(new Point(x, y));
     }
     public boolean fire(Point startingPoint) {
-        x0 = startingPoint.x;
-        y0 = startingPoint.y;
-        maxY = startingPoint.y;
+        dx = startingPoint.x;
+        dy = startingPoint.y;
+        maxY = Integer.max(0, startingPoint.y);
         isBeyond = false;
-        if(startingPoint.x > targetXMax) {
-            isBeyond = true;
-            return false;
-        }
         points = new ArrayList<>();
         points.add(startingPoint);
-        System.out.println("Fire: " + startingPoint);
+//        System.out.println("Fire: " + startingPoint);
         Point p = startingPoint;
         PointState state = getPointState(p);
+        if(state == PointState.MISS) { isBeyond = true; return false; }
+        if(state == PointState.HIT) { handleHit(); return true;}
 //        System.out.println(p + state.toString());
         while(state == PointState.APPROACH) {
             p = getNextPoint(p);
@@ -140,8 +148,9 @@ public class Day17 {
             points.add(p);
             state = getPointState(p);
 //            System.out.println(p + state.toString());
-            if(getPointState(p) == PointState.HIT) { return true; }
             if(getPointState(p) == PointState.MISS) { return false; }
+            if(getPointState(p) == PointState.HIT) { handleHit(); return true;
+            }
         }
         return false;
     }
@@ -150,20 +159,52 @@ public class Day17 {
     public Point getStartingPoint() { return points.get(0); }
     public int getMaxY() { return maxY; }
     public boolean isBeyond() { return isBeyond; }
+    void handleHit() {
+        if(Day17.maxYPoint == null || this.getMaxY() > maxMaxY) {
+            maxYPoint = getStartingPoint();
+            maxMaxY = getMaxY();
+//            System.out.println("New maxY: " + this.getMaxY() + " at " + maxYPoint);
+        }
+    }
     Point getNextPoint(Point input) {
-        if(x0 > 0) { x0--; }
-        y0--;
-        return new Point(input.x + x0, input.y + y0);
+        if(dx > 0) { dx--; }
+        dy--;
+        return new Point(input.x + dx, input.y + dy);
     }
     PointState getPointState(Point p) {
         if(p.x > targetXMax || p.y < targetYMin) {
             return PointState.MISS;
         } else if(p.x >= targetXMin && p.y <= targetYMax) {
+//            System.out.print("Adding run for " + getStartingPoint());
+            boolean added = hitSet.add(this.getStartingPoint());
+//            if(added) { System.out.println(": Done (" + hitSet.size() + ")"); }
+//            else { System.out.println(": Duplicate (" + hitSet.size() + ")"); }
             return PointState.HIT;
         } else {
             return PointState.APPROACH;
         }
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Day17 day17 = (Day17) o;
+        return targetXMin == day17.targetXMin
+                && targetXMax == day17.targetXMax
+                && targetYMin == day17.targetYMin
+                && targetYMax == day17.targetYMax
+                && dx == day17.dx && dy == day17.dy
+                && maxY == day17.maxY
+                && isBeyond == day17.isBeyond
+                && points.equals(day17.points)
+                ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(targetXMin, targetXMax, targetYMin, targetYMax, dx, dy, maxY, isBeyond, points);
+    }
+
     public enum PointState {
         APPROACH("A"),
         HIT("H"),

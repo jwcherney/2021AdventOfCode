@@ -50,7 +50,28 @@ public class TestDay17 {
 
     @Test
     void testFindMaxY() {
+        Day17.resetStatic();
         assertEquals(45, Day17.findMaxY(testInput));
-        assertEquals(new Day17.Point(7, 9), Day17.maxYDay17.getStartingPoint());
+        assertEquals(new Day17.Point(7, 9), Day17.maxYPoint);
+    }
+
+    @Test
+    void testSweepFindMaxY() {
+        Day17.resetStatic();
+        assertEquals(45, Day17.sweepFindMaxY(testInput));
+        assertEquals(new Day17.Point(6, 9), Day17.maxYPoint);
+        assertEquals(112, Day17.getHitCount());
+        Day17.resetStatic();
+        assertEquals(0, Day17.getHitCount());
+    }
+
+    @Test
+    void testResetStatic() {
+        testFindMaxY();
+        assertNotNull(Day17.maxYPoint);
+        assertEquals(10, Day17.getHitCount());
+        Day17.resetStatic();
+        assertNull(Day17.maxYPoint);
+        assertEquals(0, Day17.getHitCount());
     }
 }
