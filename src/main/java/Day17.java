@@ -113,14 +113,16 @@ public class Day17 {
         maxY = startingPoint.y;
         points = new ArrayList<>();
         points.add(startingPoint);
-//        System.out.println("Fire: " + startingPoint);
+        System.out.println("Fire: " + startingPoint);
         Point p = startingPoint;
-        while(getPointState(p) == PointState.APPROACH) {
+        PointState state = getPointState(p);
+//        System.out.println(p + state.toString());
+        while(state == PointState.APPROACH) {
             p = getNextPoint(p);
             maxY = Integer.max(maxY, p.y);
             points.add(p);
-            PointState state = getPointState(p);
-//            System.out.println(p + toPointStateString(state));
+            state = getPointState(p);
+//            System.out.println(p + state.toString());
             if(getPointState(p) == PointState.HIT) { return true; }
             if(getPointState(p) == PointState.MISS) { return false; }
         }
@@ -145,15 +147,14 @@ public class Day17 {
             return PointState.APPROACH;
         }
     }
-    static String toPointStateString(PointState s) {
-        if(s == PointState.APPROACH) { return "A"; }
-        else if(s == PointState.MISS) { return "M"; }
-        else { return "H"; }
-    }
     public enum PointState {
-        APPROACH,
-        HIT,
-        MISS,
+        APPROACH("A"),
+        HIT("H"),
+        MISS("M");
+        private final String state;
+        PointState(String state) { this.state = state; }
+        @Override
+        public String toString() { return state; }
     }
 
     public static class Point {
