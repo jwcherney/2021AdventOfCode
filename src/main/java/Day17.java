@@ -33,10 +33,13 @@ public class Day17 {
     }
     public static Day17 maxYDay17;
     public static int findMaxY(String input) {
+        return findMaxY(input, 1, 1);
+    }
+    public static int findMaxY(String input, int dx, int dy) {
         int x=0, y=0, maxY;
         ArrayList<Day17> maxYs = new ArrayList<>();
         Day17 day17 = new Day17(input);
-        while(!day17.fire(++x, y+=4)) {}
+        while(!day17.fire(x+=dx, y+=dy)) {}
         maxYs.add(day17);
         maxY = day17.getMaxY();
         System.out.println("Added first hit: " + day17.getStartingPoint() + " maxY: " + maxY);
