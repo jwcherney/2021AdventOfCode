@@ -50,7 +50,7 @@ public class Day17 {
                 keepLooking = false;
             }
         }
-        if(!keepLooking && day17.isBeyond()) { return -1; }
+        if(day17.isBeyond()) { return -1; }
         maxYs.add(day17);
         maxY = day17.getMaxY();
         System.out.println("Added first hit: " + day17.getStartingPoint() + " maxY: " + maxY);
@@ -87,7 +87,7 @@ public class Day17 {
             if(newMaxY > maxY) {
                 System.out.println("Found new maxY: " + newMaxY);
                 maxUpdated = true;
-                for(Day17 d : newMaxYs.toArray(new Day17[newMaxYs.size()])) {
+                for(Day17 d : newMaxYs.toArray(new Day17[0])) {
                     if(d.getMaxY() != newMaxY) {
                         newMaxYs.remove(d);
                     }
@@ -158,8 +158,7 @@ public class Day17 {
     PointState getPointState(Point p) {
         if(p.x > targetXMax || p.y < targetYMin) {
             return PointState.MISS;
-        } else if(p.x >= targetXMin && p.x <= targetXMax
-            && p.y >= targetYMin && p.y <= targetYMax) {
+        } else if(p.x >= targetXMin && p.y <= targetYMax) {
             return PointState.HIT;
         } else {
             return PointState.APPROACH;
