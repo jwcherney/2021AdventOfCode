@@ -3,13 +3,13 @@ import java.util.Objects;
 
 public class Day17 {
     public static void main(String[] args) {
-        System.out.println("Part 1: MaxY = " + Day17.findMaxY(day17Input));
+        System.out.println("Part 1: MaxY = " + Day17.findMaxY(day17Input, 1, 4));
         System.out.println("  Starting Point: " + Day17.maxYDay17.getStartingPoint());
         System.out.println("    Ending Point: " + Day17.maxYDay17.getPoint());
         /*
-        Part 1: MaxY = 1891  TOO LOW
-          Starting Point: (17, 61)
-            Ending Point: (153, -125)
+        Part 1: MaxY = 7750
+          Starting Point: (18, 124)
+            Ending Point: (171, -125)
         Brute force:
         Part 1: MaxY = 7750
           Starting Point: (17, 124)
