@@ -39,7 +39,18 @@ public class Day17 {
         int x=0, y=0, maxY;
         ArrayList<Day17> maxYs = new ArrayList<>();
         Day17 day17 = new Day17(input);
-        while(!day17.fire(x+=dx, y+=dy)) {}
+        boolean keepLooking = true;
+        while(keepLooking) {
+            boolean isHit = day17.fire(x+=dx, y+=dy);
+            if(!isHit) {
+                if(day17.isBeyond()) {
+                    keepLooking = false;
+                }
+            } else {
+                keepLooking = false;
+            }
+        }
+        if(!keepLooking && day17.isBeyond()) { return -1; }
         maxYs.add(day17);
         maxY = day17.getMaxY();
         System.out.println("Added first hit: " + day17.getStartingPoint() + " maxY: " + maxY);
@@ -92,8 +103,9 @@ public class Day17 {
     public static final String day17Input = "target area: x=138..184, y=-125..-71";
 
     int targetXMin, targetXMax, targetYMin, targetYMax;
-    int dx, dy;
+    int x0, y0;
     int maxY;
+    boolean isBeyond;
     ArrayList<Point> points;
     public Day17(String input) {
         String[] words = input.split(" ");
@@ -108,9 +120,14 @@ public class Day17 {
         return fire(new Point(x, y));
     }
     public boolean fire(Point startingPoint) {
-        dx = startingPoint.x;
-        dy = startingPoint.y;
+        x0 = startingPoint.x;
+        y0 = startingPoint.y;
         maxY = startingPoint.y;
+        isBeyond = false;
+        if(startingPoint.x > targetXMax) {
+            isBeyond = true;
+            return false;
+        }
         points = new ArrayList<>();
         points.add(startingPoint);
         System.out.println("Fire: " + startingPoint);
@@ -132,10 +149,11 @@ public class Day17 {
     public Point getPoint() { return points.get(points.size() - 1); }
     public Point getStartingPoint() { return points.get(0); }
     public int getMaxY() { return maxY; }
+    public boolean isBeyond() { return isBeyond; }
     Point getNextPoint(Point input) {
-        if(dx > 0) { dx--; }
-        dy--;
-        return new Point(input.x + dx, input.y + dy);
+        if(x0 > 0) { x0--; }
+        y0--;
+        return new Point(input.x + x0, input.y + y0);
     }
     PointState getPointState(Point p) {
         if(p.x > targetXMax || p.y < targetYMin) {
