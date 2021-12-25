@@ -21,6 +21,10 @@ public class Day18 {
         return number.toString();
     }
 
+    public int magnitude() {
+        return number.magnitude();
+    }
+
     public static class SNumber {
         int depth;
         boolean isLeftGroup, isRightGroup;
@@ -40,6 +44,20 @@ public class Day18 {
             } else {
                 throw new RuntimeException("Invalid configuration for a SNumber");
             }
+        }
+        public int magnitude() {
+            int returnValue = 0;
+            if(isLeftGroup) {
+                returnValue += 3*sNumberLeft.magnitude();
+            } else {
+                returnValue += 3*left;
+            }
+            if(isRightGroup) {
+                returnValue += 2*sNumberRight.magnitude();
+            } else {
+                returnValue += 2*right;
+            }
+            return returnValue;
         }
 
         public static SNumber factory(int initialDepth, String input) {

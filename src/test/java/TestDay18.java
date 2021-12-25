@@ -10,5 +10,6 @@ public class TestDay18 {
     void testSimpleAdd() {
         Day18 day18 = new Day18(testInput1);
         assertEquals(testOutput1, day18.toString());
+        assertEquals(143, day18.magnitude());
     }
 }
