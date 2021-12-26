@@ -221,7 +221,7 @@ public class Day18 {
         }
         public void handleExplodeLeftDown(int value) {
             if(isLeftGroup) {
-                handleExplodeRightDown(value);
+                sNumberLeft.handleExplodeRightDown(value);
             } else {
                 left += value;
             }
@@ -241,7 +241,7 @@ public class Day18 {
         }
         public void handleExplodeRightDown(int value) {
             if(isRightGroup) {
-                handleExplodeLeftDown(value);
+                sNumberRight.handleExplodeLeftDown(value);
             } else {
                 right += value;
             }
